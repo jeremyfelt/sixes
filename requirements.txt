@@ -1,0 +1,8 @@
+# Building the site (scripts/build.py)
+Pillow>=10
+
+# Rebuilding the word lists (scripts/build_words.py). Pinned so frequencies stay stable.
+wordfreq==3.1.1
+
+# End-to-end test (scripts/test_e2e.py). Also run: python3 -m playwright install chromium
+playwright>=1.40

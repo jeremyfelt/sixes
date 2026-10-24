@@ -1,0 +1,17 @@
+{
+  "name": "sixes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A word game where everything comes in sixes.",
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "words": "python3 scripts/build_words.py",
+    "puzzles": "python3 scripts/gen_puzzles.py",
+    "test": "python3 scripts/test_e2e.py",
+    "serve": "python3 -m http.server 8000 --directory docs"
+  },
+  "devDependencies": {
+    "naughty-words": "1.2.0",
+    "wordlist-english": "1.2.1"
+  }
+}

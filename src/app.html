@@ -1,0 +1,149 @@
+<div id="app">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-stats" viewBox="0 0 24 24"><path d="M5 20v-8M12 20V4M19 20v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M19 7h1M4 17h3M13 17h7"/><circle cx="16" cy="7" r="2.6"/><circle cx="10" cy="17" r="2.6"/></g></symbol>
+      <symbol id="i-shuffle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h4v4M4 19.5L20 4M20 16v4h-4M14.5 14.5L20 20M4 4.5l5 5"/></g></symbol>
+      <symbol id="i-clear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h11v14H9l-6-7z"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5"/></g></symbol>
+      <symbol id="i-hint" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.7 10.7c.8.7 1.2 1.4 1.2 2.3v.5h5V16c0-.9.4-1.6 1.2-2.3A6 6 0 0 0 12 3z"/></g></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5l2 6.2 6.5 2.3-6.5 2.3-2 6.2-2-6.2-6.5-2.3 6.5-2.3z" fill="currentColor"/></symbol>
+      <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.5 2.5L4.5 14h7l-1 7.5 9-11.5h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19M9 7.5h6"/></g></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-skip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5l9 6.5-9 6.5z"/><path d="M18 5v14"/></g></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 12v8h14v-8"/></g></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><g fill="currentColor"><rect x="3" y="3" width="5" height="5" rx="1.4"/><rect x="9.5" y="3" width="5" height="5" rx="1.4"/><rect x="16" y="3" width="5" height="5" rx="1.4"/><rect x="3" y="9.5" width="5" height="5" rx="1.4"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.4" opacity=".35"/><rect x="16" y="9.5" width="5" height="5" rx="1.4"/><rect x="3" y="16" width="5" height="5" rx="1.4" opacity=".35"/><rect x="9.5" y="16" width="5" height="5" rx="1.4"/><rect x="16" y="16" width="5" height="5" rx="1.4" opacity=".35"/></g></symbol>
+    </defs>
+  </svg>
+
+  <!-- HOME -->
+  <section class="screen home" id="scr-home" aria-label="Sixes home">
+    <div class="home-scroll">
+      <div class="home-inner">
+        <header class="home-head">
+          <div class="eyebrow" id="homeDate">Today</div>
+          <div class="actions-r">
+            <button class="icon-btn" id="btnStats" aria-label="Statistics"><svg><use href="#i-stats"/></svg></button>
+            <button class="icon-btn" id="btnSettings" aria-label="Settings"><svg><use href="#i-settings"/></svg></button>
+          </div>
+        </header>
+        <div class="brand">
+          <h1 class="wordmark">Sixes</h1>
+          <svg class="die" viewBox="0 0 64 64" aria-hidden="true">
+            <rect class="face" x="1" y="1" width="62" height="62" rx="16"/>
+            <circle class="p1" cx="21" cy="16" r="6.3"/><circle class="p2" cx="43" cy="16" r="6.3"/>
+            <circle class="p3" cx="21" cy="32" r="6.3"/><circle class="p4" cx="43" cy="32" r="6.3"/>
+            <circle class="p5" cx="21" cy="48" r="6.3"/><circle class="p6" cx="43" cy="48" r="6.3"/>
+          </svg>
+        </div>
+        <p class="tagline">Six letters · Six words · Every day</p>
+
+        <button class="daily-card" id="dailyCard" aria-describedby="dcStatus">
+          <div class="mini" id="dailyMini" aria-hidden="true"></div>
+          <div class="dc-body">
+            <div class="dc-eyebrow"><span id="dcNo">No. 1</span><span id="dcDiff"></span></div>
+            <div class="dc-title" id="dcTitle">Today’s Six</div>
+            <div class="dc-status" id="dcStatus">Six hidden words share one board.</div>
+            <div class="dc-foot"><span class="dc-streak" id="dcStreak">Streak <b>0</b></span><span class="dc-cta" id="dcCta">Play</span></div>
+          </div>
+        </button>
+
+        <div class="modes">
+          <button class="mode" id="blitzCard">
+            <div class="mode-icon"><svg><use href="#i-bolt"/></svg></div>
+            <div class="mode-body">
+              <div class="mode-title">Blitz</div>
+              <div class="mode-sub">Unscramble against a 60-second clock</div>
+            </div>
+            <div class="mode-stat"><span class="k">Best</span><span class="v" id="blitzBest">—</span></div>
+          </button>
+          <div class="mode practice">
+            <div class="mode-icon"><svg><use href="#i-grid"/></svg></div>
+            <div class="mode-body">
+              <div class="mode-title">Practice</div>
+              <div class="mode-sub">Endless boards, no streak on the line</div>
+            </div>
+            <div class="seg" id="practiceSeg">
+              <button data-diff="1"><span class="diff-dots"><b class="on"></b><b></b><b></b></span>Gentle<small id="pc1">0 solved</small></button>
+              <button data-diff="2"><span class="diff-dots"><b class="on"></b><b class="on"></b><b></b></span>Steady<small id="pc2">0 solved</small></button>
+              <button data-diff="3"><span class="diff-dots"><b class="on"></b><b class="on"></b><b class="on"></b></span>Tricky<small id="pc3">0 solved</small></button>
+            </div>
+          </div>
+          <button class="mode" id="bookCard">
+            <div class="mode-icon"><svg><use href="#i-book"/></svg></div>
+            <div class="mode-body">
+              <div class="mode-title">Word Book</div>
+              <div class="mode-sub" id="bookSub">Every word you find, kept</div>
+            </div>
+            <div class="mode-stat"><span class="k">Words</span><span class="v" id="bookCount">0</span></div>
+          </button>
+        </div>
+        <footer class="home-foot">
+          <button class="link-btn" id="btnHow">How to play</button>
+        </footer>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOARD: daily + practice -->
+  <section class="screen board-screen" id="scr-board" hidden aria-label="Board">
+    <header class="bar">
+      <button class="icon-btn" id="boardBack" aria-label="Back to menu"><svg><use href="#i-back"/></svg></button>
+      <div class="bar-title"><div class="bt-main" id="boardTitle">No. 1</div><div class="bt-sub" id="boardSub">Steady</div></div>
+      <div class="bar-right" id="boardTimer" aria-label="Time">0:00</div>
+    </header>
+    <div class="play-area" id="playArea">
+      <div class="preview" id="preview" aria-live="polite"></div>
+      <div class="board-wrap" id="boardWrap">
+        <div class="board" id="board" role="group" aria-label="Letter board, six rows"></div>
+      </div>
+      <div class="found" id="found" aria-label="Words found"></div>
+    </div>
+    <div class="actions">
+      <button class="act" id="btnShuffle"><svg><use href="#i-shuffle"/></svg>Shuffle</button>
+      <button class="act" id="btnClear"><svg><use href="#i-clear"/></svg>Clear</button>
+      <button class="act" id="btnHint"><svg><use href="#i-hint"/></svg>Hint</button>
+      <button class="act" id="btnBonus" aria-label="Bonus words"><svg><use href="#i-spark"/></svg><span class="count" id="bonusCount">0</span></button>
+    </div>
+  </section>
+
+  <!-- BLITZ -->
+  <section class="screen blitz-screen" id="scr-blitz" hidden aria-label="Blitz">
+    <header class="bar">
+      <button class="icon-btn" id="blitzBack" aria-label="Back to menu"><svg><use href="#i-back"/></svg></button>
+      <div class="bar-title"><div class="bt-main">Blitz</div><div class="bt-sub" id="blitzSub">Best 0</div></div>
+      <div class="bar-right" id="blitzScore" aria-label="Score">0</div>
+    </header>
+    <div class="clock" id="clock"><span class="clock-label">Time</span><div class="clock-track"><div class="clock-fill" id="clockFill"></div></div><span class="secs" id="clockSecs">60</span></div>
+    <div class="blitz-mid">
+      <div class="pips" id="pips" aria-label="Streak toward a Sixer"><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i><i class="pip"></i></div>
+      <div class="pips-label" id="pipsLabel">Six in a row makes a Sixer</div>
+      <div class="stage" id="stage"></div>
+      <div class="blitz-msg" id="blitzMsg" aria-live="polite"></div>
+    </div>
+    <div class="actions">
+      <button class="act" id="btnSkip"><svg><use href="#i-skip"/></svg>Skip <span class="count">−5s</span></button>
+      <button class="act" id="btnBShuffle"><svg><use href="#i-shuffle"/></svg>Shuffle</button>
+      <button class="act" id="btnPause" aria-label="Pause"><svg><use href="#i-pause"/></svg></button>
+    </div>
+    <div class="overlay" id="blitzOverlay">
+      <div class="overlay-card" id="blitzOverlayCard"></div>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet-grab" aria-hidden="true"></div>
+  <button class="icon-btn sheet-close" id="sheetClose" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="rotate-note" id="rotateNote">
+  <div class="rotate-card">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="15" y="6" width="18" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M21 33h6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M8 26a16 16 0 0 0 8 13M40 22a16 16 0 0 0-8-13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <p><b>Sixes plays upright.</b><br>Turn your phone to portrait to keep playing.</p>
+  </div>
+</div>
