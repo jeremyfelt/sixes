@@ -2,7 +2,8 @@
 
 Covers the daily board (rejected word, bonus word, hint, locking words, auto-finish, results,
 streak, reload), practice, Blitz (scoring, a Sixer, skip, pause, results), the Word Book,
-stats, a small-screen layout check, the landscape note and the offline service worker.
+stats, closing sheets with the X and by swiping, a small-screen layout check, the landscape
+note and the offline service worker.
 
 Setup: pip install -r requirements.txt && python3 -m playwright install chromium
 Run:   python3 scripts/build.py && python3 scripts/test_e2e.py
@@ -90,6 +91,31 @@ def score(page):
     return int(page.inner_text('#blitzScore').replace(',', ''))
 
 
+def swipe(page, cdp, x, y_from, y_to, steps=8):
+    """Drag one finger from (x, y_from) to (x, y_to) with real touch events."""
+    cdp.send('Input.dispatchTouchEvent', {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y_from}]})
+    for i in range(1, steps + 1):
+        y = y_from + (y_to - y_from) * i / steps
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchMove', 'touchPoints': [{'x': x, 'y': y}]})
+        page.wait_for_timeout(16)
+    cdp.send('Input.dispatchTouchEvent', {'type': 'touchEnd', 'touchPoints': []})
+
+
+# iPhone Safari can put a scrolling area on its own layer, above positioned siblings that come
+# before it. Chromium doesn't, so the test recreates that layering to catch controls it would bury.
+IPHONE_LAYERING = '.sheet-body, .home-scroll { position: relative; z-index: 0; }'
+
+
+def on_top(page, selector):
+    """True if a tap at the center of `selector` would land on it, not on something covering it."""
+    return page.evaluate("""(sel) => {
+      const el = document.querySelector(sel);
+      const r = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !!hit && (hit === el || el.contains(hit));
+    }""", selector)
+
+
 def main():
     SHOTS.mkdir(exist_ok=True)
     server, url = serve()
@@ -104,17 +130,22 @@ def main():
         page.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
         page.goto(url)
         page.wait_for_timeout(800)
+        page.add_style_tag(content=IPHONE_LAYERING)
         page.screenshot(path=SHOTS / '01-home.png')
         check(re.search(r'no\. \d+', page.inner_text('#dcNo').lower()) is not None, 'home shows today\'s daily number')
 
         page.tap('#dailyCard')
         page.wait_for_selector('#howGo', state='visible')
+        page.wait_for_timeout(450)
         check('How to play' in page.inner_text('#sheet'), 'how-to sheet opens before the first daily')
         meta = page.evaluate("document.querySelector('meta[name=theme-color][data-dim]').content")
         check(meta.upper() == '#8F9196', f'status bar color dims while a sheet is open ({meta})')
         page.screenshot(path=SHOTS / '02-how-to.png')
-        page.tap('#howGo')
+        check(on_top(page, '#sheetClose'), 'the X stays on top of the scrolling sheet with iPhone-style layering')
+        page.tap('#sheetClose', timeout=3000)
         page.wait_for_timeout(500)
+        check(page.evaluate("document.querySelector('#sheet').hidden"), 'the X closes the first-run instructions')
+        check(page.evaluate("localStorage.getItem('sixes:seenIntro')") == 'true', 'closing with the X marks the instructions as seen')
         meta = page.evaluate("document.querySelector('meta[name=theme-color][data-dim]').content")
         check(meta.upper() == '#ECEEF3', f'status bar color restores when the sheet closes ({meta})')
 
@@ -181,6 +212,7 @@ def main():
         pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
         pg.goto(url)
         pg.wait_for_timeout(800)
+        pg.add_style_tag(content=IPHONE_LAYERING)
         pg.screenshot(path=SHOTS / '05-home-dark.png')
         pg.tap('#practiceSeg button[data-diff="1"]')
         pg.wait_for_timeout(700)
@@ -232,6 +264,15 @@ def main():
         pg.tap('#btnStats')
         pg.wait_for_timeout(500)
         pg.screenshot(path=SHOTS / '11-stats.png')
+        cdp = ctx2.new_cdp_session(pg)
+        grab = pg.evaluate("(() => { const r = document.querySelector('.sheet-grab').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.bottom + 12 }; })()")
+        swipe(pg, cdp, grab['x'], grab['y'], grab['y'] + 6, steps=3)
+        pg.wait_for_timeout(450)
+        still = pg.evaluate("(() => { const s = document.querySelector('#sheet'); return !s.hidden && s.classList.contains('open') && !s.style.transform; })()")
+        check(still, 'a small finger wobble leaves the sheet in place')
+        swipe(pg, cdp, grab['x'], grab['y'], grab['y'] + 240)
+        pg.wait_for_timeout(500)
+        check(pg.evaluate("document.querySelector('#sheet').hidden"), 'swiping the sheet down closes it')
 
         # ---------- small phone and landscape ----------
         ctx3 = browser.new_context(color_scheme='light', viewport={'width': 375, 'height': 667},

@@ -314,23 +314,30 @@ const Sheet = (() => {
   scrim.addEventListener('click', hide);
   $('#sheetClose').addEventListener('click', hide);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) { e.preventDefault(); hide(); } });
-  // swipe the sheet down to dismiss
-  let y0 = null, dy = 0;
+  // Swipe the sheet down to dismiss. The sheet only follows the finger after a short dead zone,
+  // so the small wobble in an ordinary tap never moves the buttons out from under it.
+  const DEAD_ZONE = 10;
+  let y0 = null, dy = 0, dragging = false;
   sheet.addEventListener('touchstart', e => {
-    if (body.scrollTop > 0 && !e.target.closest('.sheet-grab')) { y0 = null; return; }
-    y0 = e.touches[0].clientY; dy = 0;
+    if (e.touches.length !== 1 || (body.scrollTop > 0 && !e.target.closest('.sheet-grab'))) { y0 = null; return; }
+    y0 = e.touches[0].clientY; dy = 0; dragging = false;
   }, { passive: true });
   sheet.addEventListener('touchmove', e => {
     if (y0 == null) return;
     dy = e.touches[0].clientY - y0;
-    if (dy > 0) { sheet.style.transition = 'none'; sheet.style.transform = `translateY(${dy}px)`; }
+    if (!dragging && dy > DEAD_ZONE) dragging = true;
+    if (dragging) { sheet.style.transition = 'none'; sheet.style.transform = `translateY(${Math.max(0, dy - DEAD_ZONE)}px)`; }
   }, { passive: true });
-  sheet.addEventListener('touchend', () => {
+  const endDrag = () => {
     if (y0 == null) return;
-    sheet.style.transition = ''; sheet.style.transform = '';
-    if (dy > 90) hide();
-    y0 = null; dy = 0;
-  });
+    if (dragging) {
+      sheet.style.transition = ''; sheet.style.transform = '';
+      if (dy > 100) hide();
+    }
+    y0 = null; dy = 0; dragging = false;
+  };
+  sheet.addEventListener('touchend', endDrag);
+  sheet.addEventListener('touchcancel', endDrag);
   return { show, hide, get open() { return isOpen; } };
 })();
 

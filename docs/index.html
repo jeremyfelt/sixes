@@ -201,7 +201,6 @@ a { color: inherit; }
 .home-scroll {
   height: 100%;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
   padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
@@ -939,10 +938,28 @@ button.mode:active { transform: scale(.985); }
 }
 .sheet.open { transform: none; }
 .sheet-grab { width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: 8px auto 0; flex: none; }
-.sheet-close { position: absolute; top: 10px; right: max(10px, env(safe-area-inset-right, 0px)); }
+/* The close button floats over the scrolling body. iPhone Safari can lift a scroll area onto its
+   own layer, so the button carries a z-index to stay on top and tappable. */
+.sheet-close {
+  position: absolute;
+  top: 8px;
+  right: max(8px, env(safe-area-inset-right, 0px));
+  z-index: 3;
+  color: var(--ink-2);
+}
+.sheet-close::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  transition: transform .12s var(--ease);
+}
+.sheet-close svg { position: relative; width: 18px; height: 18px; }
+.sheet-close:active { background: none; }
+.sheet-close:active::before { transform: scale(.88); }
 .sheet-body {
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 14px max(20px, env(safe-area-inset-left, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
 }
@@ -1251,7 +1268,7 @@ button.mode:active { transform: scale(.985); }
       <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
       <symbol id="i-skip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5l9 6.5-9 6.5z"/><path d="M18 5v14"/></g></symbol>
       <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 12v8h14v-8"/></g></symbol>
-      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></symbol>
       <symbol id="i-grid" viewBox="0 0 24 24"><g fill="currentColor"><rect x="3" y="3" width="5" height="5" rx="1.4"/><rect x="9.5" y="3" width="5" height="5" rx="1.4"/><rect x="16" y="3" width="5" height="5" rx="1.4"/><rect x="3" y="9.5" width="5" height="5" rx="1.4"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.4" opacity=".35"/><rect x="16" y="9.5" width="5" height="5" rx="1.4"/><rect x="3" y="16" width="5" height="5" rx="1.4" opacity=".35"/><rect x="9.5" y="16" width="5" height="5" rx="1.4"/><rect x="16" y="16" width="5" height="5" rx="1.4" opacity=".35"/></g></symbol>
     </defs>
   </svg>
@@ -1704,23 +1721,30 @@ const Sheet = (() => {
   scrim.addEventListener('click', hide);
   $('#sheetClose').addEventListener('click', hide);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen) { e.preventDefault(); hide(); } });
-  // swipe the sheet down to dismiss
-  let y0 = null, dy = 0;
+  // Swipe the sheet down to dismiss. The sheet only follows the finger after a short dead zone,
+  // so the small wobble in an ordinary tap never moves the buttons out from under it.
+  const DEAD_ZONE = 10;
+  let y0 = null, dy = 0, dragging = false;
   sheet.addEventListener('touchstart', e => {
-    if (body.scrollTop > 0 && !e.target.closest('.sheet-grab')) { y0 = null; return; }
-    y0 = e.touches[0].clientY; dy = 0;
+    if (e.touches.length !== 1 || (body.scrollTop > 0 && !e.target.closest('.sheet-grab'))) { y0 = null; return; }
+    y0 = e.touches[0].clientY; dy = 0; dragging = false;
   }, { passive: true });
   sheet.addEventListener('touchmove', e => {
     if (y0 == null) return;
     dy = e.touches[0].clientY - y0;
-    if (dy > 0) { sheet.style.transition = 'none'; sheet.style.transform = `translateY(${dy}px)`; }
+    if (!dragging && dy > DEAD_ZONE) dragging = true;
+    if (dragging) { sheet.style.transition = 'none'; sheet.style.transform = `translateY(${Math.max(0, dy - DEAD_ZONE)}px)`; }
   }, { passive: true });
-  sheet.addEventListener('touchend', () => {
+  const endDrag = () => {
     if (y0 == null) return;
-    sheet.style.transition = ''; sheet.style.transform = '';
-    if (dy > 90) hide();
-    y0 = null; dy = 0;
-  });
+    if (dragging) {
+      sheet.style.transition = ''; sheet.style.transform = '';
+      if (dy > 100) hide();
+    }
+    y0 = null; dy = 0; dragging = false;
+  };
+  sheet.addEventListener('touchend', endDrag);
+  sheet.addEventListener('touchcancel', endDrag);
   return { show, hide, get open() { return isOpen; } };
 })();
 

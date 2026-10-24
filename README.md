@@ -81,7 +81,7 @@ python3 -m playwright install chromium
 python3 scripts/test_e2e.py
 ```
 
-The test plays the built app in headless Chromium at phone sizes: the daily board from first tap to results, practice, a Blitz run with a Sixer, the Word Book, stats, a small-screen layout and the landscape note. Screenshots land in `test-results/`.
+The test plays the built app in headless Chromium at phone sizes: the daily board from first tap to results, practice, a Blitz run with a Sixer, the Word Book, stats, closing panels with the X and by swiping, a small-screen layout and the landscape note. It also recreates how iPhone Safari layers scrolling areas, so a control buried under one fails the test. Screenshots land in `test-results/`.
 
 ## Credits
 

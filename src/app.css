@@ -177,7 +177,6 @@ a { color: inherit; }
 .home-scroll {
   height: 100%;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
   padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
@@ -915,10 +914,28 @@ button.mode:active { transform: scale(.985); }
 }
 .sheet.open { transform: none; }
 .sheet-grab { width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: 8px auto 0; flex: none; }
-.sheet-close { position: absolute; top: 10px; right: max(10px, env(safe-area-inset-right, 0px)); }
+/* The close button floats over the scrolling body. iPhone Safari can lift a scroll area onto its
+   own layer, so the button carries a z-index to stay on top and tappable. */
+.sheet-close {
+  position: absolute;
+  top: 8px;
+  right: max(8px, env(safe-area-inset-right, 0px));
+  z-index: 3;
+  color: var(--ink-2);
+}
+.sheet-close::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  transition: transform .12s var(--ease);
+}
+.sheet-close svg { position: relative; width: 18px; height: 18px; }
+.sheet-close:active { background: none; }
+.sheet-close:active::before { transform: scale(.88); }
 .sheet-body {
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 14px max(20px, env(safe-area-inset-left, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-right, 0px));
 }
