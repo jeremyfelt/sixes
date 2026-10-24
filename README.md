@@ -2,7 +2,7 @@
 
 A word game where everything comes in sixes. Each day's board is 36 letter tiles hiding six six-letter words. Find all six.
 
-**Play:** https://jeremyfelt.github.io/sixes/
+**Play:** https://sixes.jeremyfelt.com
 
 <p>
   <img src="screenshots/home.png" width="250" alt="Sixes home screen with today's board, Blitz, Practice and Word Book">
@@ -31,14 +31,14 @@ Progress, streaks and stats are stored on the device. There are no accounts and 
 
 ## Put it on your iPhone
 
-1. Open https://jeremyfelt.github.io/sixes/ in Safari.
+1. Open https://sixes.jeremyfelt.com in Safari.
 2. Tap Share, then **Add to Home Screen**.
 
 Sixes opens full screen with its own icon, works offline, and keeps your progress on the phone. Progress in Safari and in the Home Screen app is stored separately, so add it to the Home Screen before you start a streak.
 
 ## Hosting
 
-`docs/` is the complete, built app. GitHub Pages serves it from **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `docs`**. Any static host works too: upload the contents of `docs/` and serve them over HTTPS.
+`docs/` is the complete, built app. GitHub Pages serves it from **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `docs`**, at the custom domain in `docs/CNAME`. The build never touches that file. Any static host works too: upload the contents of `docs/` and serve them over HTTPS.
 
 To try it locally, run `python3 -m http.server 8000 --directory docs` and open http://localhost:8000.
 
