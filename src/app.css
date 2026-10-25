@@ -850,7 +850,11 @@ button.mode:active { transform: scale(.985); }
   padding: 24px max(16px, env(safe-area-inset-left, 0px)) 24px max(16px, env(safe-area-inset-right, 0px));
 }
 .overlay.solid { background: var(--bg); }
-.overlay-card { text-align: center; max-width: 340px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+/* The Blitz header (back arrow, score) sits above its overlays, so there's always a way out. */
+.blitz-screen .bar { position: relative; z-index: 9; }
+.overlay-card { text-align: center; width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.overlay-card .last-score { font-variant-numeric: tabular-nums; margin-top: -6px; }
+.overlay-card .eyebrow.best { color: var(--c4); }
 .overlay-card h2 {
   margin: 0;
   font-family: var(--font-display);
@@ -892,8 +896,10 @@ button.mode:active { transform: scale(.985); }
   background: var(--scrim);
   opacity: 0;
   transition: opacity .28s;
+  pointer-events: none;
 }
-.scrim.open { opacity: 1; }
+/* Backdrop and panel only take taps while open, so nothing is blocked while they fade away. */
+.scrim.open { opacity: 1; pointer-events: auto; }
 .sheet {
   position: fixed;
   left: 0;
@@ -911,8 +917,9 @@ button.mode:active { transform: scale(.985); }
   box-shadow: 0 -20px 40px -20px rgb(0 0 0 / .35);
   transform: translateY(105%);
   transition: transform .36s cubic-bezier(.2, .85, .25, 1);
+  pointer-events: none;
 }
-.sheet.open { transform: none; }
+.sheet.open { transform: none; pointer-events: auto; }
 .sheet-grab { width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: 8px auto 0; flex: none; }
 /* The close button floats over the scrolling body. iPhone Safari can lift a scroll area onto its
    own layer, so the button carries a z-index to stay on top and tappable. */

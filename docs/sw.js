@@ -1,5 +1,5 @@
 /* Sixes offline cache: answer from the cache, refresh it in the background. */
-const CACHE = 'sixes-fe64e77f0f';
+const CACHE = 'sixes-8c2f68082c';
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
 self.addEventListener('install', event => {

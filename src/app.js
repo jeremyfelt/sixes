@@ -930,6 +930,7 @@ const Blitz = (() => {
   const START = 60000, PLUS = 3000, SKIP = 5000, SIXER = 6000;
   const tiles = [], slots = [];
   let S = null;
+  let lastRun = null;   // { run, prev, B, isBest } for the run that just ended
 
   for (let i = 0; i < 6; i++) { const s = document.createElement('div'); s.className = 'bslot'; s.style.setProperty('--i', i); stage.appendChild(s); slots.push(s); }
   for (let i = 0; i < 6; i++) {
@@ -953,7 +954,7 @@ const Blitz = (() => {
   function open() {
     showScreen('blitz');
     layout();
-    S = null;
+    S = null; lastRun = null;
     $('#blitzSub').textContent = `Best ${fmtNum(best())}`;
     scoreEl.textContent = '0';
     renderClockStatic(START);
@@ -1206,26 +1207,37 @@ const Blitz = (() => {
     overlay.hidden = true;
   }
 
-  function end() {
-    if (!S || !S.running) return;
+  function stopRun() {
     S.running = false;
     cancelAnimationFrame(S.raf);
     tiles.forEach(el => { el.disabled = true; });
-    Sound.end(); Haptic.buzz();
+  }
+
+  // Save a finished run to the Blitz stats. Returns the previous best and the updated stats.
+  function recordRun(run) {
     const B = Store.get('blitz', {});
     const prev = B.best || 0;
-    B.best = Math.max(prev, S.score);
-    B.bestWords = Math.max(B.bestWords || 0, S.solved.length);
-    B.bestRun = Math.max(B.bestRun || 0, S.bestRun);
+    B.best = Math.max(prev, run.score);
+    B.bestWords = Math.max(B.bestWords || 0, run.solved.length);
+    B.bestRun = Math.max(B.bestRun || 0, run.bestRun);
     B.runs = (B.runs || 0) + 1;
-    B.total = (B.total || 0) + S.solved.length;
-    B.sixers = (B.sixers || 0) + S.sixers;
-    B.recent = (B.recent || []).concat([...S.used]).slice(-260);
-    B.scores = (B.scores || []).concat([S.score]).slice(-12);
+    B.total = (B.total || 0) + run.solved.length;
+    B.sixers = (B.sixers || 0) + run.sixers;
+    B.recent = (B.recent || []).concat([...run.used]).slice(-260);
+    B.scores = (B.scores || []).concat([run.score]).slice(-12);
     Store.set('blitz', B);
     $('#blitzSub').textContent = `Best ${fmtNum(B.best)}`;
-    msg.innerHTML = '<b>Time!</b>';
+    return { prev, B };
+  }
+
+  function end() {
+    if (!S || !S.running) return;
+    stopRun();
+    Sound.end(); Haptic.buzz();
     const run = S;
+    const { prev, B } = recordRun(run);
+    lastRun = { run, prev, B, isBest: run.score > prev && run.score > 0 };
+    msg.innerHTML = '<b>Time!</b>';
     run.resultsT = setTimeout(() => { if (S === run) results(prev, B, run); }, 650);
   }
 
@@ -1260,17 +1272,37 @@ const Blitz = (() => {
     });
   }
 
+  // What's left on screen after the results panel closes: the score, and every way onward.
   function showAgain() {
-    overlay.classList.remove('solid');
-    ovCard.innerHTML = `<h2>Blitz</h2><p>Best ${fmtNum(best())}</p><button class="btn" id="bStart">Play again</button>`;
+    overlay.classList.add('solid');
+    const last = lastRun;
+    const summary = last
+      ? `<span class="eyebrow${last.isBest ? ' best' : ''}">${last.isBest ? 'New best' : 'Last run'}</span>
+         <h2 class="last-score">${fmtNum(last.run.score)}</h2>
+         <p>${plural(last.run.solved.length, 'word')} · ${plural(last.run.sixers, 'Sixer')} · best ${fmtNum(best())}</p>`
+      : `<h2>Blitz</h2><p>Best ${fmtNum(best())}</p>`;
+    ovCard.innerHTML = `${summary}
+      <button class="btn" id="bStart">Play again</button>
+      ${last ? '<div class="btn-row"><button class="btn ghost" id="bResults">Results</button><button class="btn ghost" id="bMenu">Menu</button></div>'
+        : '<button class="btn ghost" id="bMenu">Menu</button>'}`;
     overlay.hidden = false;
     $('#bStart').addEventListener('click', start);
+    $('#bMenu').addEventListener('click', leave);
+    const r = $('#bResults');
+    if (r) r.addEventListener('click', () => results(last.prev, last.B, last.run));
   }
 
   function leave() {
-    if (S && S.running) { S.running = false; cancelAnimationFrame(S.raf); }
+    if (S && S.running) {
+      stopRun();
+      // Walking away mid-run still counts the words you solved.
+      if (S.solved.length) {
+        const { prev, B } = recordRun(S);
+        toast(S.score > prev ? `New Blitz best · <b>${fmtNum(B.best)}</b>` : `Blitz run saved · <b>${fmtNum(S.score)}</b> points`, 2200);
+      }
+    }
     if (S && S.resultsT) clearTimeout(S.resultsT);
-    S = null;
+    S = null; lastRun = null;
     overlay.hidden = true;
     showScreen('home');
   }
